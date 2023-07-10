@@ -1,2 +1,4 @@
 /www/**
+/www/log/**
 .idea
+/conf/nginx/**

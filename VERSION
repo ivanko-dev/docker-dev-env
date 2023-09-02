@@ -1,0 +1,7 @@
+1.0.0b
+Initial beta release
+- release includes main configuration for Adobe Commerce 2.4 stack with PHP 7.4, 8.1 and 8.2 on board
+- release includes elasticsearch 7 and opensearch as well
+- some minor compose config fixes added compare to initial code
+- additional information specified in package doc
+------------------------------------------

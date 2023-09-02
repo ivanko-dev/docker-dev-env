@@ -5,8 +5,7 @@ services:
     # build: ./images/php/7.4
     volumes:
       - ./www/:/var/www/
-      - ./www/composer:/home/apache/.composer
-      - ~/.ssh/:/home/apache/.ssh/
+      - ~/.ssh/:/var/www/.ssh/
     hostname: php74.ivanko.dockerl
     container_name: php74
     extra_hosts:
@@ -24,8 +23,7 @@ services:
     # build: ./images/php/8.1
     volumes:
       - ./www/:/var/www/
-      - ./www/composer:/home/apache/.composer
-      - ~/.ssh/:/home/app/.ssh/
+      - ~/.ssh/:/var/www/.ssh/
     hostname: php81.ivanko.docker
     container_name: php81
     extra_hosts:
@@ -43,8 +41,7 @@ services:
     # build: ./images/php/8.2
     volumes:
       - ./www/:/var/www/
-      - ./www/composer:/home/apache/.composer
-      - ~/.ssh/:/home/app/.ssh/
+      - ~/.ssh/:/var/www/.ssh/
     hostname: php82.ivanko.docker
     container_name: php82
     extra_hosts:

@@ -1,41 +1,5 @@
 version: "3.8"
 services:
-  php74:
-    image: ivankodev/php:dev74
-    # build: ./images/php/7.4
-    volumes:
-      - ./www/:/var/www/
-      - ~/.ssh/:/var/www/.ssh/
-    hostname: php74.ivanko.dockerl
-    container_name: php74
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    restart: unless-stopped
-    environment:
-      - XDEBUG=on
-      - PHP_IDE_CONFIG=serverName=Docker
-      - COMPOSER_VERSION=2    
-    networks:
-      - net
-
-  php81:
-    image: ivankodev/php:dev81
-    # build: ./images/php/8.1
-    volumes:
-      - ./www/:/var/www/
-      - ~/.ssh/:/var/www/.ssh/
-    hostname: php81.ivanko.docker
-    container_name: php81
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    restart: unless-stopped
-    environment:
-      - XDEBUG=on
-      - PHP_IDE_CONFIG=serverName=Docker
-      - COMPOSER_VERSION=2
-    networks:
-      - net
-
   php82:
     image: ivankodev/php:dev82
     # build: ./images/php/8.2
@@ -54,12 +18,30 @@ services:
     networks:
       - net
 
-  nginx:
-    image: ivankodev/nginx:1.22
-    # build: ./images/nginx/1.22
+  php83:
+    image: ivankodev/php:dev83
+    # build: ./images/php/8.3
     volumes:
       - ./www/:/var/www/
-      - ./conf/nginx/:/etc/nginx/conf.d/
+      - ~/.ssh/:/var/www/.ssh/
+    hostname: php83.ivanko.docker
+    container_name: php83
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    environment:
+      - XDEBUG=on
+      - PHP_IDE_CONFIG=serverName=Docker
+      - COMPOSER_VERSION=2
+    networks:
+      - net
+
+  nginx:
+    image: ivankodev/nginx:1.28 
+    #build: ./images/nginx/1.28
+    volumes:
+      - ./www/:/var/www/
+      - ./conf/nginx/conf.d/:/etc/nginx/conf.d/
     container_name: nginx
     restart: unless-stopped
     ports:
@@ -77,7 +59,7 @@ services:
       - net
 
   mysql:
-    image: mariadb:10.6
+    image: mariadb:11.4
     hostname: mysql
     container_name: mysql
     restart: unless-stopped
@@ -109,19 +91,6 @@ services:
       - MYSQL_USER=admin
       - PMA_PASSWORD=admin
       - PMA_HOST=mysql
-
-  # adminer:
-  #   image: adminer
-  #   hostname: adminer
-  #   container_name: adminer
-  #   restart: unless-stopped
-  #   ports:
-  #     - 8080:8080
-  #   networks:
-  #     - net
-  #   environment:
-  #     - ADMINER_DESIGN=dracula
-  #     - ADMINER_DEFAULT_SERVER=mysql
 
   elasticsearch7:
     image: elasticsearch:7.17.10

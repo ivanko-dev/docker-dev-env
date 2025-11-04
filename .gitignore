@@ -2,3 +2,4 @@
 /www/log/**
 .idea
 /conf/nginx/**
+!/conf/nginx/conf.d/example.conf

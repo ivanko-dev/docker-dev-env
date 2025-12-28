@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-bookworm
+FROM php:8.5-fpm-bookworm
 
 ARG APP_ID=1000
 RUN groupmod -g "$APP_ID" www-data \
@@ -36,10 +36,13 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libpng-dev \
     libsodium-dev \
+    libssl-dev \
+    libxml2-dev \
     libssh2-1-dev \
     libwebp-dev \
     libxslt1-dev \
     libzip-dev \
+    zlib1g-dev \
     lsof \
     mailutils \
     msmtp \
@@ -71,7 +74,6 @@ RUN docker-php-ext-configure \
     intl \
     mbstring \
     mysqli \
-    opcache \
     pcntl \
     pdo_mysql \
     soap \

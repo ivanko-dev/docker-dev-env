@@ -1,26 +1,45 @@
-version: "3.8"
 services:
-  php82:
-    image: ivankodev/php:dev82
-    # build: ./images/php/8.2
-    volumes:
-      - ./www/:/var/www/
-      - ~/.ssh/:/var/www/.ssh/
-    hostname: php82.ivanko.docker
-    container_name: php82
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    restart: unless-stopped
-    environment:
-      - XDEBUG=on
-      - PHP_IDE_CONFIG=serverName=Docker
-      - COMPOSER_VERSION=2
-    networks:
-      - net
+  # PLEASE UNCOMMENT THIS IF YOU WANT TO USE PHP 8.1
+  # php81:
+  #   image: ivankodev/php:8.1
+  #   # build: ./images/php/8.1
+  #   volumes:
+  #     - ./www/:/var/www/
+  #     - ~/.ssh/:/var/www/.ssh/
+  #   hostname: php81.ivanko.docker
+  #   container_name: php81
+  #   extra_hosts:
+  #     - host.docker.internal:host-gateway
+  #   restart: unless-stopped
+  #   environment:
+  #     - XDEBUG=on
+  #     - PHP_IDE_CONFIG=serverName=Docker
+  #     - COMPOSER_VERSION=2
+  #   networks:
+  #     - net
+
+  # PLEASE UNCOMMENT THIS IF YOU WANT TO USE PHP 8.2
+  # php82:
+  #   image: ivankodev/php:8.2
+  #   # build: ./images/php/8.2
+  #   volumes:
+  #     - ./www/:/var/www/
+  #     - ~/.ssh/:/var/www/.ssh/
+  #   hostname: php82.ivanko.docker
+  #   container_name: php82
+  #   extra_hosts:
+  #     - host.docker.internal:host-gateway
+  #   restart: unless-stopped
+  #   environment:
+  #     - XDEBUG=on
+  #     - PHP_IDE_CONFIG=serverName=Docker
+  #     - COMPOSER_VERSION=2
+  #   networks:
+  #     - net
 
   php83:
-    image: ivankodev/php:dev83
-    # build: ./images/php/8.3
+    image: ivankodev/php:8.3
+    # build: ./images/php/8.3 # UNCOMMENT THIS IF YOU WANT TO BUILD PHP 8.3 FROM SOURCE
     volumes:
       - ./www/:/var/www/
       - ~/.ssh/:/var/www/.ssh/
@@ -36,17 +55,54 @@ services:
     networks:
       - net
 
+  php84:
+    image: ivankodev/php:8.4
+    # build: ./images/php/8.4 # UNCOMMENT THIS IF YOU WANT TO BUILD PHP 8.4 FROM SOURCE
+    volumes:
+      - ./www/:/var/www/
+      - ~/.ssh/:/var/www/.ssh/
+    hostname: php84.ivanko.docker
+    container_name: php84
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    environment:
+      - XDEBUG=on
+      - PHP_IDE_CONFIG=serverName=Docker
+      - COMPOSER_VERSION=2
+    networks:
+      - net
+
+  php85:
+    image: ivankodev/php:8.5
+    # build: ./images/php/8.5 # UNCOMMENT THIS IF YOU WANT TO BUILD PHP 8.5 FROM SOURCE
+    volumes:
+      - ./www/:/var/www/
+      - ~/.ssh/:/var/www/.ssh/
+    hostname: php85.ivanko.docker
+    container_name: php85
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    environment:
+      - XDEBUG=on
+      - PHP_IDE_CONFIG=serverName=Docker
+      - COMPOSER_VERSION=2
+    networks:
+      - net
   nginx:
-    image: ivankodev/nginx:1.28 
-    #build: ./images/nginx/1.28
+    image: ivankodev/nginx:1.28
+    # build: ./images/nginx/1.28 # UNCOMMENT THIS IF YOU WANT TO BUILD NGINX FROM SOURCE
     volumes:
       - ./www/:/var/www/
       - ./conf/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./conf/ssl/:/etc/nginx/ssl/
+      - ./conf/nginx/snippets/:/etc/nginx/snippets/:ro
     container_name: nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "[::]:80:80"
+      - "[::]:443:443"
     networks:
       - net
 
@@ -63,10 +119,7 @@ services:
     hostname: mysql
     container_name: mysql
     restart: unless-stopped
-    command:
-      --max_allowed_packet=64M
-      --optimizer_use_condition_selectivity=1
-      --optimizer_switch="rowid_filter=off"
+    command: --max_allowed_packet=64M --optimizer_use_condition_selectivity=1 --optimizer_switch="rowid_filter=off"
     ports:
       - "3306:3306"
     networks:
@@ -74,7 +127,7 @@ services:
     volumes:
       - ./www/mysql/:/var/lib/mysql/
     environment:
-      - MARIADB_PASS=admin
+      - MARIADB_PASSWORD=admin
       - MARIADB_USER=admin
       - MARIADB_ROOT_PASSWORD=admin
 
@@ -92,26 +145,23 @@ services:
       - PMA_PASSWORD=admin
       - PMA_HOST=mysql
 
-  elasticsearch7:
+  elasticsearch:
     image: elasticsearch:7.17.10
-    hostname: elasticsearch7
-    container_name: elasticsearch7
+    hostname: elasticsearch
+    container_name: elasticsearch
     restart: unless-stopped
     ports:
       - "9201:9200"
     command: >
-      /bin/sh -c "./bin/elasticsearch-plugin list | grep -q analysis-phonetic
-      || ./bin/elasticsearch-plugin install analysis-phonetic analysis-icu;
-      /usr/local/bin/docker-entrypoint.sh"
+      /bin/sh -c "./bin/elasticsearch-plugin list | grep -q analysis-phonetic || ./bin/elasticsearch-plugin install analysis-phonetic analysis-icu; /usr/local/bin/docker-entrypoint.sh"
     networks:
       - net
     environment:
       - ES_JAVA_OPTS=-Xms2G -Xmx2G
       - discovery.type=single-node
 
-
   opensearch:
-    image: opensearchproject/opensearch:2.5.0
+    image: opensearchproject/opensearch:3
     hostname: opensearch
     container_name: opensearch
     restart: unless-stopped
@@ -119,17 +169,16 @@ services:
       - "9200:9200"
       - "9300:9300"
     command: >
-       /bin/sh -c "./bin/opensearch-plugin list list | grep -q analysis-phonetic
-       || ./bin/opensearch-plugin install analysis-phonetic analysis-icu;
-       /usr/share/opensearch/opensearch-docker-entrypoint.sh"
+      /bin/sh -c "./bin/opensearch-plugin list | grep -q analysis-phonetic || ./bin/opensearch-plugin install analysis-phonetic analysis-icu; /usr/share/opensearch/opensearch-docker-entrypoint.sh"
     networks:
-       - net
+      - net
     environment:
-       - plugins.security.disabled=true
-       - discovery.type=single-node
+      - plugins.security.disabled=true
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=Opensearch123
+      - discovery.type=single-node
 
   rabbitmq:
-    image: rabbitmq:3.11-management
+    image: rabbitmq:4.1-management
     hostname: rabbitmq
     container_name: rabbitmq
     restart: unless-stopped
@@ -143,9 +192,4 @@ networks:
     name: net
     driver: bridge
     driver_opts:
-        com.docker.network.enable_ipv6: "false"
-    ipam:
-        driver: default
-        config:
-            - subnet: 182.25.0.0/24
-              gateway: 182.25.0.1
+      com.docker.network.enable_ipv6: "false"

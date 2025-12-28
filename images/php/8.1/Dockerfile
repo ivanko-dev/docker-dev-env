@@ -1,5 +1,4 @@
 FROM php:8.1-fpm-bookworm
-MAINTAINER Ivan Koliadynskyi <i.koliadynskyi@gmail.com>
 
 ARG APP_ID=1000
 RUN groupmod -g "$APP_ID" www-data \

@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-bookworm
+FROM php:8.4-fpm-bookworm
 
 ARG APP_ID=1000
 RUN groupmod -g "$APP_ID" www-data \

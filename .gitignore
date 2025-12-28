@@ -2,4 +2,12 @@
 /www/log/**
 .idea
 /conf/nginx/**
+!/conf/nginx/conf.d/
+/conf/nginx/conf.d/**
 !/conf/nginx/conf.d/example.conf
+!/conf/nginx/snippets/
+/conf/nginx/snippets/**
+!/conf/nginx/snippets/ssl.conf
+/conf/ssl/*
+!/conf/ssl/.gitkeep
+/conf/domains.local.txt

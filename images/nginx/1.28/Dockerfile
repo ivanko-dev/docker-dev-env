@@ -1,5 +1,4 @@
 FROM nginx:1.28
-MAINTAINER Ivan Koliadynskyi <i.koliadynskyi@gmail.com>
 
 USER root
 

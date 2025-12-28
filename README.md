@@ -1,59 +1,108 @@
 # docker-dev-env
 
-
 Docker compose configuration and images for local development.
-In general developed for Magento 2 / Adobe Commerce development but easy may be used for other PHP based projects.
+Originally built for Magento 2 / Adobe Commerce, but usable for other PHP projects.
+Tested on Ubuntu 22.04.
 
-Package developed for Linux type OS and tested with Ubuntu 22.04.
+## Requirements
+- Docker Engine + Compose plugin
+- mkcert (installed by `./bin/init.sh`)
+- Linux (Windows/macOS may work with manual adjustments)
 
-## How to use
-1. Install docker
+## HTTPS quick start (recommended)
+1. Make scripts executable:
 ```
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+chmod +x ./bin/init.sh ./bin/add-domain.sh
 ```
-2. Configure docker to run on start up
+2. Install mkcert and generate local certs (run as your normal user):
 ```
-sudo systemctl enable docker
-sudo systemctl start docker
+./bin/init.sh
 ```
-3. Add user to docker group for correct launching and access (replace _**yourusername**_ with your real username in the system)
-```
-sudo usermod -aG docker yourusername
-```
-4. Add required nginx configuration to `conf/nginx` folder in package and register used local domain in your OS `/etc/hosts`
-5. Open cloned repository root folder (where docker-compose.yml placed) and start docker:
+3. Start containers:
 ```
 docker compose up -d
 ```
+4. Open `https://example.localhost`
 
-## How to add new application to dev environment
-1. Place files for application into installed package `www` directory
-2. Choose local domain for application and add it to hosts configuration (eg. `/etc/hosts` on Ubuntu or `C:\Windows\System32\drivers\etc\hosts` on Windows)
-    ```
-    ## EXAMPLE FOR http://example.local ##
-   127.0.0.1       example.local www.example.local
-   ```
-3. Create nginx config for application in the `conf/nginx` package folder (check `cong/nginx/example.conf` for details)
-   1. specify the root folder using path inside of container. For example if your have application in `www/example` then `root /var/www/example;` should be specified in config
-   2. configure required version of PHP for FastCGI server (`fastcgi_pass`) using container name and default PHP port.
-   For example for PHP 8.1 this will be `fastcgi_pass php81:9000`. You can use `upstream` config for this purpose, for example:
-   ```
-   upstream fastcgi_backend_exmp {
-       server  php82:9000;
-   }
-   ....
-       location ~ ^/.+\.php(/|$) {
-           fastcgi_pass   fastcgi_backend_exmp;
-           ....
-   ```
-4. Restart nginx container and application should be accessible using previously defined local domain
-   ```
-   docker container restart nginx
-   ```
+Optional: add a custom domain with HTTPS:
+```
+./bin/add-domain.sh appname.localhost
+```
 
-## TODO List
-- prepare more detailed documentation and description (_80% done_)
-- test prepared images and compose configuration (_70% done_)
-- include additional services/images in package
-- ~~create SH script for automatic deployment and configuration~~ (_deprecated as not needed for dev env_)
+## What init.sh does
+- Installs `mkcert` and `libnss3-tools`
+- Trusts the mkcert local CA for the current user
+- Generates `conf/ssl/dev.pem` and `conf/ssl/dev-key.pem` for `localhost`, `*.localhost`, and `*.dev.localhost`
+
+Note: Do not run `./bin/init.sh` with `sudo`. If you did, re-run `mkcert -install` as your normal user.
+
+## Certificates and nginx
+- `conf/ssl/dev.pem` and `conf/ssl/dev-key.pem` are mounted into nginx as `/etc/nginx/ssl/dev.pem` and `/etc/nginx/ssl/dev-key.pem`.
+- Nginx includes them via `conf/nginx/snippets/ssl.conf`.
+- To use the default dev certificate in your vhost, add IPv6 listeners (required for dual-stack):
+```
+listen 80;
+listen [::]:80;
+listen 443 ssl;
+listen [::]:443 ssl;
+include /etc/nginx/snippets/ssl.conf;
+```
+
+## How to add a new app (Method 1 - Recommended)
+1. Put your app under `www/your-app`
+2. Use a domain ending in `.dev.localhost` (e.g. `reisebank.dev.localhost`)
+3. Add an nginx vhost in `conf/nginx/conf.d/` (use `conf/nginx/conf.d/example.conf` as a template)
+4. Restart nginx:
+```
+docker compose restart nginx
+```
+**No host entry or certificate generation is needed** for `.dev.localhost` domains.
+
+## How to add a new app (Method 2 - Custom Domain)
+1. Put your app under `www/your-app`
+2. Add a host entry for non-`.localhost` domains (Linux example):
+```
+127.0.0.1 your-app.localhost
+```
+3. Run: `./bin/add-domain.sh appname.test`
+4. Add an nginx vhost in `conf/nginx/conf.d/`
+5. Restart nginx
+
+## Services and ports
+- nginx: `80`, `443`
+- MariaDB: `3306`
+- phpMyAdmin: `8080`
+- Redis: internal only
+- RabbitMQ Management: `8082`
+- Elasticsearch 7: `9201`
+- OpenSearch: `9200`, `9300`
+
+## phpMyAdmin login
+- Host: `mysql`
+- User: `admin` (password from `docker-compose.yml`)
+- Root: `root` (password from `docker-compose.yml`)
+
+If you need database creation privileges for `admin`, use `root` to grant them.
+
+## Common commands
+Start:
+```
+docker compose up -d
+```
+Stop:
+```
+docker compose down
+```
+Restart nginx:
+```
+docker compose restart nginx
+```
+
+## HTTPS troubleshooting
+If the browser shows an untrusted cert warning:
+```
+mkcert -install
+mkcert -cert-file conf/ssl/dev.pem -key-file conf/ssl/dev-key.pem example.localhost localhost "*.localhost"
+docker compose restart nginx
+```
+Then fully restart the browser.

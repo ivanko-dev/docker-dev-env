@@ -9,4 +9,7 @@ Changes since 1.0.0b
 - removed public IPAM subnet and let Docker choose a private range
 - fixed MariaDB env var to use MARIADB_PASSWORD
 - fixed OpenSearch plugin list command typo
-------------------------------------------
+- added PHP 8.3, 8.4 and 8.5 support
+- configured nginx to use SSL
+- added SSL certificate generation script
+- added init script which includes mkcert installation required for certificate generation

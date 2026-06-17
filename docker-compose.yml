@@ -1,42 +1,4 @@
 services:
-  # PLEASE UNCOMMENT THIS IF YOU WANT TO USE PHP 8.1
-  # php81:
-  #   image: ivankodev/php:8.1
-  #   # build: ./images/php/8.1
-  #   volumes:
-  #     - ./www/:/var/www/
-  #     - ~/.ssh/:/var/www/.ssh/
-  #   hostname: php81.ivanko.docker
-  #   container_name: php81
-  #   extra_hosts:
-  #     - host.docker.internal:host-gateway
-  #   restart: unless-stopped
-  #   environment:
-  #     - XDEBUG=on
-  #     - PHP_IDE_CONFIG=serverName=Docker
-  #     - COMPOSER_VERSION=2
-  #   networks:
-  #     - net
-
-  # PLEASE UNCOMMENT THIS IF YOU WANT TO USE PHP 8.2
-  # php82:
-  #   image: ivankodev/php:8.2
-  #   # build: ./images/php/8.2
-  #   volumes:
-  #     - ./www/:/var/www/
-  #     - ~/.ssh/:/var/www/.ssh/
-  #   hostname: php82.ivanko.docker
-  #   container_name: php82
-  #   extra_hosts:
-  #     - host.docker.internal:host-gateway
-  #   restart: unless-stopped
-  #   environment:
-  #     - XDEBUG=on
-  #     - PHP_IDE_CONFIG=serverName=Docker
-  #     - COMPOSER_VERSION=2
-  #   networks:
-  #     - net
-
   php83:
     image: ivankodev/php:8.3
     # build: ./images/php/8.3 # UNCOMMENT THIS IF YOU WANT TO BUILD PHP 8.3 FROM SOURCE
@@ -49,7 +11,6 @@ services:
       - host.docker.internal:host-gateway
     restart: unless-stopped
     environment:
-      - XDEBUG=on
       - PHP_IDE_CONFIG=serverName=Docker
       - COMPOSER_VERSION=2
     networks:
@@ -67,12 +28,12 @@ services:
       - host.docker.internal:host-gateway
     restart: unless-stopped
     environment:
-      - XDEBUG=on
       - PHP_IDE_CONFIG=serverName=Docker
       - COMPOSER_VERSION=2
     networks:
       - net
 
+  # Adobe Commerce 2.4.9 requires PHP 8.5
   php85:
     image: ivankodev/php:8.5
     # build: ./images/php/8.5 # UNCOMMENT THIS IF YOU WANT TO BUILD PHP 8.5 FROM SOURCE
@@ -85,14 +46,14 @@ services:
       - host.docker.internal:host-gateway
     restart: unless-stopped
     environment:
-      - XDEBUG=on
       - PHP_IDE_CONFIG=serverName=Docker
       - COMPOSER_VERSION=2
     networks:
       - net
+
   nginx:
-    image: ivankodev/nginx:1.28
-    # build: ./images/nginx/1.28 # UNCOMMENT THIS IF YOU WANT TO BUILD NGINX FROM SOURCE
+    image: ivankodev/nginx:1.30
+    # build: ./images/nginx/1.30 # UNCOMMENT THIS IF YOU WANT TO BUILD NGINX FROM SOURCE
     volumes:
       - ./www/:/var/www/
       - ./conf/nginx/conf.d/:/etc/nginx/conf.d/
@@ -106,6 +67,16 @@ services:
     networks:
       - net
 
+  # Valkey 9 — cache/session backend for Adobe Commerce 2.4.9
+  valkey:
+    image: valkey/valkey:9
+    hostname: valkey
+    container_name: valkey
+    restart: unless-stopped
+    networks:
+      - net
+
+  # Redis kept for legacy projects (Valkey is the 2.4.9 default)
   redis:
     image: redis
     hostname: redis
@@ -115,7 +86,7 @@ services:
       - net
 
   mysql:
-    image: mariadb:11.4
+    image: mariadb:12.3
     hostname: mysql
     container_name: mysql
     restart: unless-stopped
@@ -145,6 +116,7 @@ services:
       - PMA_PASSWORD=admin
       - PMA_HOST=mysql
 
+  # Elasticsearch 7 kept for legacy projects (Adobe Commerce 2.4.9 uses OpenSearch 3)
   elasticsearch:
     image: elasticsearch:7.17.10
     hostname: elasticsearch
@@ -178,7 +150,7 @@ services:
       - discovery.type=single-node
 
   rabbitmq:
-    image: rabbitmq:4.1-management
+    image: rabbitmq:4.2-management
     hostname: rabbitmq
     container_name: rabbitmq
     restart: unless-stopped

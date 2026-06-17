@@ -2,12 +2,30 @@
 
 Docker compose configuration and images for local development.
 Originally built for Magento 2 / Adobe Commerce, but usable for other PHP projects.
+The default stack targets **Adobe Commerce 2.4.9** system requirements.
 Tested on Ubuntu 22.04.
 
 ## Requirements
 - Docker Engine + Compose plugin
 - mkcert (installed by `./bin/init.sh`)
 - Linux (Windows/macOS may work with manual adjustments)
+
+## Stack versions (Adobe Commerce 2.4.9)
+| Service | Version | Notes |
+|---|---|---|
+| PHP | 8.3 / 8.4 / **8.5** | 8.5 required by 2.4.9; all built from `images/php/*` |
+| nginx | 1.30 | built from `images/nginx/1.30` |
+| MariaDB | 12.3 | MySQL 8.4 is the supported alternative |
+| OpenSearch | 3 | search engine for 2.4.9 |
+| Valkey | 9 | cache / session backend for 2.4.9 |
+| RabbitMQ | 4.2 | message queue (management UI) |
+| Elasticsearch | 7.17 | legacy only — kept for older projects |
+| Redis | latest | legacy only — Valkey is the 2.4.9 default |
+
+The PHP and nginx images are published to Docker Hub under `ivankodev/*` and are
+pulled by default in `docker-compose.yml`. The matching `Dockerfile`s live under
+`images/` so they can also be built locally (uncomment the `build:` line for any
+service to build instead of pull).
 
 ## HTTPS quick start (recommended)
 1. Make scripts executable:
@@ -72,9 +90,10 @@ docker compose restart nginx
 - nginx: `80`, `443`
 - MariaDB: `3306`
 - phpMyAdmin: `8080`
-- Redis: internal only
+- Valkey: internal only
+- Redis (legacy): internal only
 - RabbitMQ Management: `8082`
-- Elasticsearch 7: `9201`
+- Elasticsearch 7 (legacy): `9201`
 - OpenSearch: `9200`, `9300`
 
 ## phpMyAdmin login
@@ -97,6 +116,16 @@ Restart nginx:
 ```
 docker compose restart nginx
 ```
+
+## Building and publishing images
+The PHP and nginx images are pulled from Docker Hub by default. To rebuild and
+publish them (e.g. after changing a `Dockerfile`):
+```
+docker build -t ivankodev/php:8.5 ./images/php/8.5
+docker push ivankodev/php:8.5
+```
+Repeat for `8.3`, `8.4` and `ivankodev/nginx:1.30`. To build locally without
+publishing, just uncomment the `build:` line of the service in `docker-compose.yml`.
 
 ## HTTPS troubleshooting
 If the browser shows an untrusted cert warning:

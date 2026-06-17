@@ -1,6 +1,7 @@
 /www/**
 /www/log/**
 .idea
+.vscode
 /conf/nginx/**
 !/conf/nginx/conf.d/
 /conf/nginx/conf.d/**

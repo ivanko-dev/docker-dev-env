@@ -1,15 +1,18 @@
-1.0.0
-Initial release
-- release includes main configuration for Adobe Commerce 2.4 stack with PHP 7.4, 8.1 and 8.2 on board
-- release includes elasticsearch 7 and opensearch as well
-- additional information specified in package doc
+1.1.0
+Adobe Commerce 2.4.9 stack
 
-Changes since 1.0.0b
-- removed obsolete compose version field
-- removed public IPAM subnet and let Docker choose a private range
-- fixed MariaDB env var to use MARIADB_PASSWORD
-- fixed OpenSearch plugin list command typo
-- added PHP 8.3, 8.4 and 8.5 support
-- configured nginx to use SSL
-- added SSL certificate generation script
-- added init script which includes mkcert installation required for certificate generation
+Changes since 1.0.0
+- targeted the stack at Adobe Commerce 2.4.9 system requirements
+- bumped nginx to 1.30 (added images/nginx/1.30)
+- bumped MariaDB to 12.3
+- bumped RabbitMQ to 4.2
+- added Valkey 9 (cache/session backend for 2.4.9); kept Redis as legacy
+- kept OpenSearch 3; kept Elasticsearch 7 as legacy for older projects
+- reworked PHP images (8.3/8.4/8.5): consolidated layers, removed deprecated
+  libmcrypt, disabled OPcache JIT for stability, switched Xdebug to trigger-based
+  (no autostart) with no hardcoded IDE key
+- standardized PHP 8.3/8.4/8.5 Dockerfiles on one shared pattern
+- removed PHP 7.4, 8.1 and 8.2 images; only the latest three PHP versions ship
+- defaulted compose services to ivankodev/* images from Docker Hub
+- fixed example.conf upstream (php82 -> php85)
+- ignored .vscode; stopped tracking www/log/autohost.error.log

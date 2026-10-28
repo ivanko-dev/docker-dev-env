@@ -3,7 +3,7 @@
 Docker compose configuration and images for local development.
 Originally built for Magento 2 / Adobe Commerce, but usable for other PHP projects.
 The default stack targets **Adobe Commerce 2.4.9** system requirements.
-Tested on Ubuntu 22.04.
+Tested on Ubuntu 22.04 and 24.04.
 
 ## Requirements
 - Docker Engine + Compose plugin
@@ -16,11 +16,13 @@ Tested on Ubuntu 22.04.
 | PHP | 8.3 / 8.4 / **8.5** | 8.5 required by 2.4.9; all built from `images/php/*` |
 | nginx | 1.30 | built from `images/nginx/1.30` |
 | MariaDB | 12.3 | MySQL 8.4 is the supported alternative |
+| MariaDB | 11.8 | second server for 2.4.7 projects, own data dir |
 | OpenSearch | 3 | search engine for 2.4.9 |
 | Valkey | 9 | cache / session backend for 2.4.9 |
-| RabbitMQ | 4.2 | message queue (management UI) |
+| Valkey | 8.1 | for projects on older releases |
+| RabbitMQ | 4.3 | message queue (management UI) |
 | Elasticsearch | 7.17 | legacy only — kept for older projects |
-| Redis | latest | legacy only — Valkey is the 2.4.9 default |
+| Redis | — | disabled (commented out in `docker-compose.yml`); Valkey replaces it |
 
 The PHP and nginx images are published to Docker Hub under `ivankodev/*` and are
 pulled by default in `docker-compose.yml`. The matching `Dockerfile`s live under
@@ -88,11 +90,11 @@ docker compose restart nginx
 
 ## Services and ports
 - nginx: `80`, `443`
-- MariaDB: `3306`
+- MariaDB 12.3: `3306`
+- MariaDB 11.8: `3307`
 - phpMyAdmin: `8080`
-- Valkey: internal only
-- Redis (legacy): internal only
-- RabbitMQ Management: `8082`
+- Valkey 9 / 8.1: internal only
+- RabbitMQ Management: `15672`
 - Elasticsearch 7 (legacy): `9201`
 - OpenSearch: `9200`, `9300`
 
@@ -119,9 +121,10 @@ docker compose restart nginx
 
 ## Building and publishing images
 The PHP and nginx images are pulled from Docker Hub by default. To rebuild and
-publish them (e.g. after changing a `Dockerfile`):
+publish them (e.g. after changing a `Dockerfile`, or to pick up the latest PHP/nginx
+patch release and OS updates):
 ```
-docker build -t ivankodev/php:8.5 ./images/php/8.5
+docker build --pull --no-cache -t ivankodev/php:8.5 ./images/php/8.5
 docker push ivankodev/php:8.5
 ```
 Repeat for `8.3`, `8.4` and `ivankodev/nginx:1.30`. To build locally without

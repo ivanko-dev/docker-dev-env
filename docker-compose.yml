@@ -1,3 +1,6 @@
+# Fixed project name, so `docker compose` finds the same containers whatever the checkout folder is called.
+name: servers
+
 services:
   php83:
     image: ivankodev/php:8.3
@@ -76,14 +79,23 @@ services:
     networks:
       - net
 
-  # Redis kept for legacy projects (Valkey is the 2.4.9 default)
-  redis:
-    image: redis
-    hostname: redis
-    container_name: redis
+  # Valkey 8.1 — for projects on older Adobe Commerce releases
+  valkey81:
+    image: valkey/valkey:8.1
+    hostname: valkey81
+    container_name: valkey81
     restart: unless-stopped
     networks:
       - net
+
+  # Redis (legacy) is disabled; Valkey replaces it. Uncomment for a project that still needs it.
+  # redis:
+  #   image: redis
+  #   hostname: redis
+  #   container_name: redis
+  #   restart: unless-stopped
+  #   networks:
+  #     - net
 
   mysql:
     image: mariadb:12.3
@@ -97,6 +109,24 @@ services:
       - net
     volumes:
       - ./www/mysql/:/var/lib/mysql/
+    environment:
+      - MARIADB_PASSWORD=admin
+      - MARIADB_USER=admin
+      - MARIADB_ROOT_PASSWORD=admin
+      - MARIADB_AUTO_UPGRADE=1
+
+  mariadb:
+    image: mariadb:11.8
+    hostname: mariadb
+    container_name: mariadb
+    restart: unless-stopped
+    command: --max_allowed_packet=64M --optimizer_use_condition_selectivity=1 --optimizer_switch="rowid_filter=off"
+    ports:
+      - "3307:3306"
+    networks:
+      - net
+    volumes:
+      - ./www/mariadb-11.8/:/var/lib/mysql/
     environment:
       - MARIADB_PASSWORD=admin
       - MARIADB_USER=admin
@@ -150,12 +180,12 @@ services:
       - discovery.type=single-node
 
   rabbitmq:
-    image: rabbitmq:4.2-management
+    image: rabbitmq:4.3-management
     hostname: rabbitmq
     container_name: rabbitmq
     restart: unless-stopped
     ports:
-      - "8082:15672"
+      - "15672:15672"
     networks:
       - net
 
